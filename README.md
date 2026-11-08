@@ -1,4 +1,4 @@
-# TL074 Analog Signal Generator ⚡
+# Costum Signal Generator ⚡
 
 An open-source, fully analog function generator built around the **TL074 quad operational amplifier**. This project generates simultaneous Triangle, Square, and Sine waves. It features a discrete, mathematical piecewise-linear diode wave shaper, adjustable output buffering, and a low-noise split-rail power design.
 
@@ -9,12 +9,11 @@ Designed and routed in **KiCad 8**, with complete circuit simulation available f
 ## 📑 Table of Contents
 1. [Key Features](#-key-features)
 2. [Theory of Operation](#-theory-of-operation)
-3. [Component Selection Guide](#-component-selection-guide)
-4. [Bill of Materials (BOM)](#-bill-of-materials-bom)
+3. [LTspice Simulation](#-ltspice-simulation)
+4. [Component Selection Guide](#-component-selection-guide)
 5. [PCB Design & Layout](#-pcb-design--layout)
 6. [Calibration & Tuning](#-calibration--tuning)
-7. [LTspice Simulation](#-ltspice-simulation)
-8. [License](#-license)
+
 
 ---
 
@@ -47,6 +46,17 @@ Because building a pure analog sine wave oscillator is inherently unstable, this
 
 ---
 
+## 💻 LTspice Simulation
+
+Before modifying the PCB, you can test resistor changes in the provided LTspice `.asc` file. 
+<img width="1858" height="899" alt="Image" src="https://github.com/user-attachments/assets/ecf07521-2cf6-45b9-b70a-f437f7def819" />
+**Pro-Tips for Simulation:**
+* ** Voltage divivers are used instead of trimmmers in some cases
+* ** Transient analysis is used
+  <img width="1900" height="923" alt="Image" src="https://github.com/user-attachments/assets/4e8b6cf4-2759-4584-9320-aedef695a974" />
+
+---
+
 ## 🔬 Component Selection Guide
 
 To achieve a clean, low-distortion waveform, component quality is critical:
@@ -54,30 +64,19 @@ To achieve a clean, low-distortion waveform, component quality is critical:
 * **Capacitors (Timing):** `C1` must be a **Film Capacitor** (Polyester/Mylar or Polypropylene). Ceramic capacitors suffer from microphonics and temperature drift, which will cause your frequency to wander.
 * **Capacitors (Bypass):** The 0.1µF decoupling caps placed near the TL074 power pins should be standard **MLCC ceramics** for the fastest high-frequency noise rejection.
 * **Diodes:** You *must* use **1N4148** or **1N914** small-signal fast-switching diodes. Do not substitute with power rectifiers like the 1N4007 or 1N4937, as their forward voltage curves and junction capacitance will ruin the high-frequency response.
+  <img width="1172" height="814" alt="Image" src="https://github.com/user-attachments/assets/122a2829-971f-4915-bca5-73577761836d" />
 
 ---
 
-## 🛒 Bill of Materials (BOM)
-
-| Reference | Component | Value | Footprint / Package | Notes |
-| :--- | :--- | :--- | :--- | :--- |
-| **U1, U2, U3, U4** | Quad Op-Amp | TL074 | `DIP-14_W7.62mm` | Solder a 14-pin DIP socket to the board. |
-| **D1 - D4** | Signal Diode | 1N4148 | `D_DO-35_SOD27_P7.62mm_Horizontal` | Low capacitance, DO-35 glass package. |
-| **RV1** | Multi-Turn Trimmer | 100kΩ | `Potentiometer_Bourns_3296P_Vertical` | Bourns 3296P or SR Passives T67W (Top adjust). |
-| **R1 - R8** | Fixed Resistors | Various | `R_Axial_DIN0207_L6.3mm` | 1/4W, 1% Metal Film recommended. |
-| **C1** | Timing Cap | 0.1µF | `C_Disc_D5.0mm_W2.5mm_P5.00mm` | Box/Film type preferred for stability. |
-| **C2, C3** | Bypass Caps | 0.1µF | `C_Disc_D5.0mm_W2.5mm_P5.00mm` | Ceramic disc. |
-| **J1** | Power Input | 3-Pin | `TerminalBlock_Phoenix_MKDS-1,5-3` | 5.08mm pitch (+15V, GND, -15V). |
-| **J2, J3, J4** | Signal Outputs | 2-Pin | `PinHeader_1x02_P2.54mm_Vertical` | Standard 2.54mm headers for scope probes. |
-
----
 
 ## 📐 PCB Design & Layout
 
 If modifying the KiCad `.kicad_pcb` layout, adhere to these analog routing guidelines:
-1. **Copper Pours:** The board features grounded copper fills on both the `F.Cu` and `B.Cu` layers to shield the sensitive wave shaper from EMI. 
-2. **Decoupling Placement:** The bypass capacitors are physically routed millimetres away from Pin 4 (+15V) and Pin 11 (-15V) of the TL074 to absorb transient switching spikes from the square wave generator.
-3. **Trace Widths:** Analog signal traces are routed at `0.25mm` (10 mil), while the power rails (`+15V`, `-15V`) are thickened to `0.5mm` (20 mil) to minimize voltage drop.
+1. **Copper Pours:** The board features grounded copper fills on both the `F.Cu` and `B.Cu` layers to shield the sensitive wave shaper from EMI.
+   <img width="838" height="850" alt="Image" src="https://github.com/user-attachments/assets/5193e8b9-2b2f-4915-b57c-0fbfec2ddd5d" />
+3. **Decoupling Placement:** The bypass capacitors are physically routed millimetres away from Pin 4 (+15V) and Pin 11 (-15V) of the TL074 to absorb transient switching spikes from the square wave generator.
+   <img width="1144" height="848" alt="Image" src="https://github.com/user-attachments/assets/43324d7e-386f-4cb2-a3b4-8cc3c0b5c06d" />
+5. **Trace Widths:** Analog signal traces are routed at `0.25mm` (10 mil), while the power rails (`+15V`, `-15V`) are thickened to `0.5mm` (20 mil) to minimize voltage drop.
 
 ---
 
@@ -91,18 +90,5 @@ Once assembled, you will need an oscilloscope to calibrate the device:
 
 ---
 
-## 💻 LTspice Simulation
-
-Before modifying the PCB, you can test resistor changes in the provided LTspice `.asc` file. 
-
-**Pro-Tips for Simulation:**
-* **Testing Wave Shaper Resistors:** Use the `.step param` directive to automatically test hundreds of resistor values. For example, to find the perfect bend for the 3V diode branch:
-  `.step param R_test 1k 5k 100`
-* **Checking Distortion:** Use the `.four` command to analyze the exact Total Harmonic Distortion (THD) of your sine wave:
-  `.four 1kHz V(sine_out)`
-* View the results by pressing `Ctrl+L` to open the SPICE Error Log.
-
----
-
-## 📄 License
-This project is licensed under the **MIT License**. You are free to use, modify, and distribute this hardware design for both personal and commercial projects. See the [LICENSE](LICENSE) file for details.
+## TODO
+Upload the pcb with soldered components when is ready
